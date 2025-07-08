@@ -11,6 +11,7 @@ const Login: React.FC = () => {
     rememberMe: false,
   });
   const [error, setError] = useState('');
+  const [profile, setProfile] = useState<any>(null); // For user profile
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -24,15 +25,38 @@ const Login: React.FC = () => {
     e.preventDefault();
     const { email, password } = formData;
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-    if (error) {
-      setError(error.message);
-    } else {
-      setError('');
-      alert('Logged in successfully!');
-      // Optional: navigate('/dashboard');
+    if (signInError) {
+      setError(signInError.message);
+      return;
     }
+
+    // Fetch user profile from `profiles` table
+    const user = authData?.user;
+    if (user) {
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError) {
+        setError('Login successful, but failed to load profile.');
+        console.error(profileError.message);
+      } else {
+        setProfile(profileData);
+        console.log('User profile:', profileData); // Remove in production
+      }
+    }
+
+    setError('');
+    alert('Logged in successfully!');
+    // You can now navigate to dashboard and pass profile if needed
+    // navigate('/dashboard', { state: { profile } });
   };
 
   const handleGoogleLogin = async () => {
