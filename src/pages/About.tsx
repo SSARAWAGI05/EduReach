@@ -45,7 +45,7 @@ const About: React.FC = () => {
     {
       year: "2020",
       title: "Company Founded",
-      description: "EduPlatform was founded with a mission to democratize quality education"
+      description: "Lear With Rishika! was founded with a mission to democratize quality education"
     },
     {
       year: "2021",
@@ -101,7 +101,7 @@ const About: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Hero Section */}
         <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">About EduPlatform</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">About Learn with Rishika!</h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             We're on a mission to make quality education accessible to everyone, everywhere. 
             Through innovative technology and expert instruction, we're transforming how people learn and grow.
