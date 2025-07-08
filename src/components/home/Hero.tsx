@@ -51,7 +51,7 @@ const Hero: React.FC = () => {
           <div className="relative">
             <div className="bg-white rounded-2xl shadow-2xl p-8 transform rotate-3 hover:rotate-0 transition-transform duration-300">
               <img
-                src="https://images.pexels.com/photos/5212345/pexels-photo-5212345.jpeg?auto=compress&cs=tinysrgb&w=600"
+                src="https://i.postimg.cc/5yyd0y52/0-F708217-3-D0-B-45-ED-9-FED-E38288541250.jpg"
                 alt="Students learning"
                 className="w-full h-64 object-cover rounded-lg mb-4"
               />
