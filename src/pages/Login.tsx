@@ -39,7 +39,7 @@ const Login: React.FC = () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: 'https://learnwithrishika.vercel.app/',
+        redirectTo: 'https://ofxinmglsqsbyzsiofcy.supabase.co/auth/v1/callback',
       },
     });
 
