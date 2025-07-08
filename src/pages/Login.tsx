@@ -22,7 +22,6 @@ const Login: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     const { email, password } = formData;
 
     const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -32,8 +31,20 @@ const Login: React.FC = () => {
     } else {
       setError('');
       alert('Logged in successfully!');
-      // You can redirect here using React Router
-      // navigate('/dashboard');
+      // Optional: navigate('/dashboard');
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: 'https://learnwithrishika.vercel.app/',
+      },
+    });
+
+    if (error) {
+      setError(error.message);
     }
   };
 
@@ -78,6 +89,7 @@ const Login: React.FC = () => {
                 />
               </div>
             </div>
+
             <div>
               <label htmlFor="password" className="sr-only">
                 Password
@@ -104,20 +116,14 @@ const Login: React.FC = () => {
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                     onClick={() => setShowPassword(!showPassword)}
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-5 w-5" />
-                    ) : (
-                      <Eye className="h-5 w-5" />
-                    )}
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
                 </div>
               </div>
             </div>
           </div>
 
-          {error && (
-            <p className="text-sm text-red-500 text-center">{error}</p>
-          )}
+          {error && <p className="text-sm text-red-500 text-center">{error}</p>}
 
           <div className="flex items-center justify-between">
             <div className="flex items-center">
@@ -164,19 +170,31 @@ const Login: React.FC = () => {
               {/* Google Button */}
               <button
                 type="button"
+                onClick={handleGoogleLogin}
                 className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
               >
                 <span className="sr-only">Sign in with Google</span>
-                {/* SVG omitted for brevity */}
+                <svg
+                  className="w-5 h-5"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 488 512"
+                  fill="currentColor"
+                >
+                  <path d="M488 261.8c0-17.8-1.6-35.1-4.6-51.8H249v98h134.4c-5.8 31.1-23.2 57.5-49.5 75.1v62.4h79.8c46.8-43.2 74.3-107 74.3-183.7z" />
+                  <path d="M249 480c66.6 0 122.5-22 163.3-59.6l-79.8-62.4c-22 15.1-50.2 24-83.5 24-64.1 0-118.4-43.2-137.9-101.3H29.2v63.7C69.6 426.4 152.9 480 249 480z" />
+                  <path d="M111.1 280.7c-10.2-30.1-10.2-62.4 0-92.5V124.5H29.2c-30 60.1-30 132.9 0 193l81.9-63.8z" />
+                  <path d="M249 97.7c35.7-.5 69.6 12.7 95.7 36.9l71.5-71.5C371.5 26.8 311.4 0 249 0c-96.1 0-179.4 53.6-219.8 139.2l81.9 63.7c19.5-58.1 73.8-101.3 137.9-101.3z" />
+                </svg>
               </button>
 
-              {/* GitHub Button */}
+              {/* GitHub Button (optional - can implement later) */}
               <button
                 type="button"
                 className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                disabled
               >
                 <span className="sr-only">Sign in with GitHub</span>
-                {/* SVG omitted for brevity */}
+                GitHub (coming soon)
               </button>
             </div>
           </div>
