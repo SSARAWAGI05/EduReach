@@ -53,7 +53,7 @@ const Register: React.FC = () => {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: 'http://localhost:5173/dashboard', // ✅ adjust if needed
+        redirectTo: 'https://learnwithrishika.vercel.app/', // ✅ adjust if needed
       },
     });
   };
