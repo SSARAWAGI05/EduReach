@@ -16,30 +16,49 @@ const Register: React.FC = () => {
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match.");
-      return;
-    }
+  if (formData.password !== formData.confirmPassword) {
+    alert("Passwords do not match.");
+    return;
+  }
 
-    const { data, error } = await supabase.auth.signUp({
-      email: formData.email,
-      password: formData.password,
-      options: {
-        data: {
+  // Step 1: Sign up the user
+  const { data: authData, error: signUpError } = await supabase.auth.signUp({
+    email: formData.email,
+    password: formData.password,
+  });
+
+  if (signUpError) {
+    alert(signUpError.message);
+    return;
+  }
+
+  // Step 2: Insert user details into your `users` table
+  const { user } = authData;
+  if (user) {
+    const { error: insertError } = await supabase
+      .from('users')
+      .insert([
+        {
+          id: user.id, // Link to auth.users
           first_name: formData.firstName,
           last_name: formData.lastName,
-        },
-      },
-    });
+          email: formData.email,
+          is_active: true, // optional default
+          created_at: new Date().toISOString(), // optional if you want to prefill
+        }
+      ]);
 
-    if (error) {
-      alert(error.message);
+    if (insertError) {
+      alert('Account created, but failed to save user info.');
+      console.error(insertError);
     } else {
       alert('Account created! Please check your email for confirmation.');
     }
-  };
+  }
+};
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
