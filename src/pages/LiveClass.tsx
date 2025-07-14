@@ -10,13 +10,14 @@ const LiveClass: React.FC = () => {
   });
 
   const nextClass = {
-    title: "Advanced React Patterns",
-    instructor: "Sarah Johnson",
-    date: "2024-01-20",
+    title: "Macroeconomics",
+    instructor: "Rishika Sarawagi",
+    date: "2025-08-20",
     time: "14:00",
     duration: "2 hours",
     participants: 156,
-    image: "https://images.pexels.com/photos/5212345/pexels-photo-5212345.jpeg?auto=compress&cs=tinysrgb&w=600"
+    image: "https://images.pexels.com/photos/5212345/pexels-photo-5212345.jpeg?auto=compress&cs=tinysrgb&w=600",
+    link: "https://meet.google.com/kya-jnti-sog" // ✅ Your actual Google Meet link
   };
 
   useEffect(() => {
@@ -110,7 +111,7 @@ const LiveClass: React.FC = () => {
               <h2 className="text-3xl font-bold mb-4">Next Live Class</h2>
               <h3 className="text-2xl font-semibold mb-2">{nextClass.title}</h3>
               <p className="text-lg mb-4">with {nextClass.instructor}</p>
-              
+
               <div className="flex items-center space-x-6 mb-6">
                 <div className="flex items-center space-x-2">
                   <Calendar className="h-5 w-5" />
@@ -149,11 +150,20 @@ const LiveClass: React.FC = () => {
                 </div>
               </div>
 
-              <button className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors flex items-center">
-                <Video className="h-5 w-5 mr-2" />
-                Join Class
-              </button>
+              {/* Join Class Button with Link */}
+              <a
+                href={nextClass.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block"
+              >
+                <button className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors flex items-center">
+                  <Video className="h-5 w-5 mr-2" />
+                  Join Class
+                </button>
+              </a>
             </div>
+
             <div>
               <img
                 src={nextClass.image}
@@ -172,7 +182,7 @@ const LiveClass: React.FC = () => {
               <div key={class_.id} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
                 <h3 className="text-xl font-bold text-gray-900 mb-2">{class_.title}</h3>
                 <p className="text-gray-600 mb-4">with {class_.instructor}</p>
-                
+
                 <div className="space-y-2 text-sm text-gray-500 mb-4">
                   <div className="flex items-center space-x-2">
                     <Calendar className="h-4 w-4" />
@@ -187,7 +197,7 @@ const LiveClass: React.FC = () => {
                     <span>{class_.participants} enrolled</span>
                   </div>
                 </div>
-                
+
                 <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors">
                   Register Now
                 </button>
