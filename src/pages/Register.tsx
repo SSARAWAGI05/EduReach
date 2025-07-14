@@ -70,7 +70,7 @@ const Register: React.FC = () => {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: 'http://localhost:3000/oauth-callback', // ⚠️ Change to your production URL
+        redirectTo: 'https://ofxinmglsqsbyzsiofcy.supabase.co', // ⚠️ Change to your production URL
       },
     });
   };
