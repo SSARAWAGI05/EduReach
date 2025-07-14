@@ -35,9 +35,19 @@ const Login: React.FC = () => {
       return;
     }
 
-    // Fetch user profile from `profiles` table
     const user = authData?.user;
     if (user) {
+      // Step 1: Update is_active to true in `users` table
+      const { error: updateError } = await supabase
+        .from('users')
+        .update({ is_active: true })
+        .eq('id', user.id);
+
+      if (updateError) {
+        console.error('Failed to update is_active status:', updateError.message);
+      }
+
+      // Step 2: Fetch profile (optional)
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
@@ -49,15 +59,15 @@ const Login: React.FC = () => {
         console.error(profileError.message);
       } else {
         setProfile(profileData);
-        console.log('User profile:', profileData); // Remove in production
+        console.log('User profile:', profileData);
       }
-    }
 
-    setError('');
-    alert('Logged in successfully!');
-    // You can now navigate to dashboard and pass profile if needed
-    // navigate('/dashboard', { state: { profile } });
+      setError('');
+      alert('Logged in successfully!');
+      // navigate('/dashboard', { state: { profile } });
+    }
   };
+
 
   const handleGoogleLogin = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
