@@ -75,19 +75,18 @@ const LiveClass: React.FC = () => {
 
   // ✅ Fetch notes for the current class
   useEffect(() => {
-    if (!nextClass) return;
-
     const fetchNotes = async () => {
       const { data, error } = await supabase
         .from('class_notes')
         .select('*')
-        .eq('class_id', nextClass.id);
+        .order('uploaded_at', { ascending: false });
 
       if (!error) setNotes(data);
     };
 
     fetchNotes();
-  }, [nextClass]);
+  }, []);
+
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
