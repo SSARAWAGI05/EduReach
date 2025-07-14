@@ -12,6 +12,7 @@ const LiveClass: React.FC = () => {
     seconds: 0
   });
   const [notes, setNotes] = useState<any[]>([]);
+  const [selectedNoteUrl, setSelectedNoteUrl] = useState<string | null>(null);
 
   // ✅ Get user session
   useEffect(() => {
@@ -26,7 +27,7 @@ const LiveClass: React.FC = () => {
     getUser();
   }, []);
 
-  // ✅ Fetch next class for the student
+  // ✅ Fetch next class for student
   useEffect(() => {
     if (!userEmail) return;
 
@@ -47,7 +48,7 @@ const LiveClass: React.FC = () => {
     fetchClass();
   }, [userEmail]);
 
-  // ✅ Countdown to class start
+  // ✅ Timer countdown
   useEffect(() => {
     if (!nextClass) return;
 
@@ -73,7 +74,7 @@ const LiveClass: React.FC = () => {
     return () => clearInterval(timer);
   }, [nextClass]);
 
-  // ✅ Fetch notes for the current class
+  // ✅ Fetch all notes (no class_id filtering)
   useEffect(() => {
     const fetchNotes = async () => {
       const { data, error } = await supabase
@@ -87,7 +88,6 @@ const LiveClass: React.FC = () => {
     fetchNotes();
   }, []);
 
-
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -96,9 +96,9 @@ const LiveClass: React.FC = () => {
           <p className="text-xl text-gray-600">Join interactive sessions with expert instructors</p>
         </div>
 
+        {/* ✅ Show class details */}
         {userEmail && nextClass && (
           <>
-            {/* ✅ Class Info */}
             <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 mb-12 text-white">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
                 <div>
@@ -134,7 +134,7 @@ const LiveClass: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* ✅ Join Button */}
+                  {/* ✅ Join class */}
                   {nextClass.link &&
                     timeLeft.days === 0 &&
                     timeLeft.hours === 0 &&
@@ -163,8 +163,8 @@ const LiveClass: React.FC = () => {
               </div>
             </div>
 
-            {/* ✅ Notes Viewer */}
-            <div className="bg-white rounded-xl shadow-md p-6">
+            {/* ✅ Notes Section */}
+            <div className="bg-white rounded-xl shadow-md p-6 mt-10">
               <h2 className="text-2xl font-bold mb-4">Class Notes</h2>
 
               {notes.length > 0 ? (
@@ -172,24 +172,48 @@ const LiveClass: React.FC = () => {
                   {notes.map((note) => (
                     <li key={note.id} className="flex justify-between items-center border-b pb-2">
                       <span className="text-gray-800">{note.title}</span>
-                      <a
-                        href={note.file_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 underline hover:text-blue-800"
-                      >
-                        View / Download
-                      </a>
+                      <div className="space-x-4">
+                        <button
+                          onClick={() => setSelectedNoteUrl(note.file_url)}
+                          className="text-green-600 underline hover:text-green-800"
+                        >
+                          Preview
+                        </button>
+                        <a
+                          href={note.file_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 underline hover:text-blue-800"
+                        >
+                          Download
+                        </a>
+                      </div>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <p className="text-gray-500">Notes will be uploaded here by your instructor.</p>
+                <p className="text-gray-500">Notes will appear here once uploaded.</p>
               )}
             </div>
+
+            {/* ✅ PDF Preview Section */}
+            {selectedNoteUrl && (
+              <div className="mt-10">
+                <h3 className="text-xl font-semibold mb-2">Preview:</h3>
+                <div className="w-full h-[600px] border rounded-lg overflow-hidden">
+                  <iframe
+                    src={selectedNoteUrl}
+                    title="PDF Preview"
+                    className="w-full h-full"
+                    frameBorder="0"
+                  ></iframe>
+                </div>
+              </div>
+            )}
           </>
         )}
 
+        {/* Not logged in */}
         {!userEmail && (
           <div className="text-center text-red-600 text-lg font-semibold mb-10">
             Please log in to see your upcoming classes.
