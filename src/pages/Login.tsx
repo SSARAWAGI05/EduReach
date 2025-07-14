@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 
 const Login: React.FC = () => {
-  const navigate = useNavigate(); // ✅ NEW: for redirecting after login
+  const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -15,37 +15,9 @@ const Login: React.FC = () => {
   const [error, setError] = useState('');
   const [profile, setProfile] = useState<any>(null);
 
-  useEffect(() => {
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event !== 'SIGNED_IN' || !session?.user) return;
-
-      const provider = session.user.app_metadata?.provider ?? 'password';
-
-      if (provider === 'google') {
-        const { error: upsertError } = await supabase
-          .from('users')
-          .upsert(
-            {
-              id: session.user.id,
-              email: session.user.email,
-              is_active: true,
-            },
-            { onConflict: 'id' }
-          );
-        if (upsertError) console.error('Google upsert failed:', upsertError.message);
-      } else {
-        const { error: updateError } = await supabase
-          .from('users')
-          .update({ is_active: true })
-          .eq('id', session.user.id);
-        if (updateError) console.error('Update is_active failed:', updateError.message);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+  /* ------------------------------------------------------------------
+     No “users” table updates: the onAuthStateChange listener is gone.
+     ------------------------------------------------------------------ */
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -85,8 +57,7 @@ const Login: React.FC = () => {
 
     setError('');
     alert('Logged in successfully!');
-
-    navigate('/dashboard'); // ✅ RESTORED: navigate to dashboard after login
+    navigate('/dashboard');
   };
 
   const handleGoogleLogin = async () => {
@@ -208,9 +179,6 @@ const Login: React.FC = () => {
       </div>
     </div>
   );
-
-
-
 };
 
 export default Login;
