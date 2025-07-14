@@ -11,24 +11,22 @@ const LiveClass: React.FC = () => {
     minutes: 0,
     seconds: 0
   });
-  const [noteFile, setNoteFile] = useState<File | null>(null);
   const [notes, setNotes] = useState<any[]>([]);
 
-  // ✅ Get user session and email
+  // ✅ Get user session
   useEffect(() => {
     const getUser = async () => {
       const {
         data: { session }
       } = await supabase.auth.getSession();
 
-      const email = session?.user?.email;
-      setUserEmail(email ?? null);
+      setUserEmail(session?.user?.email ?? null);
     };
 
     getUser();
   }, []);
 
-  // ✅ Fetch next class
+  // ✅ Fetch next class for the student
   useEffect(() => {
     if (!userEmail) return;
 
@@ -49,7 +47,7 @@ const LiveClass: React.FC = () => {
     fetchClass();
   }, [userEmail]);
 
-  // ✅ Timer countdown
+  // ✅ Countdown to class start
   useEffect(() => {
     if (!nextClass) return;
 
@@ -75,7 +73,7 @@ const LiveClass: React.FC = () => {
     return () => clearInterval(timer);
   }, [nextClass]);
 
-  // ✅ Fetch notes for the class
+  // ✅ Fetch notes for the current class
   useEffect(() => {
     if (!nextClass) return;
 
@@ -90,47 +88,6 @@ const LiveClass: React.FC = () => {
 
     fetchNotes();
   }, [nextClass]);
-
-  // ✅ Handle note upload
-  const handleUpload = async () => {
-    if (!noteFile || !nextClass?.id || !userEmail) return;
-
-    const fileName = `${Date.now()}-${noteFile.name}`;
-    const { error: uploadError } = await supabase.storage
-      .from('notes')
-      .upload(fileName, noteFile);
-
-    if (uploadError) {
-      console.error('Storage upload error:', uploadError);
-      return;
-    }
-
-    const { data: publicUrlData } = supabase.storage.from('notes').getPublicUrl(fileName);
-    const publicUrl = publicUrlData.publicUrl;
-
-    const { error: insertError } = await supabase.from('class_notes').insert([
-      {
-        class_id: nextClass.id,
-        student_email: userEmail,
-        title: noteFile.name,
-        file_url: publicUrl
-      }
-    ]);
-
-    if (insertError) {
-      console.error('Insert error:', insertError);
-    } else {
-      setNoteFile(null);
-      alert('Note uploaded successfully');
-
-      // Refresh notes
-      const { data: updatedNotes, error } = await supabase
-        .from('class_notes')
-        .select('*')
-        .eq('class_id', nextClass.id);
-      if (!error) setNotes(updatedNotes);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -178,7 +135,7 @@ const LiveClass: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* ✅ Join button */}
+                  {/* ✅ Join Button */}
                   {nextClass.link &&
                     timeLeft.days === 0 &&
                     timeLeft.hours === 0 &&
@@ -207,28 +164,10 @@ const LiveClass: React.FC = () => {
               </div>
             </div>
 
-            {/* ✅ Notes Section */}
+            {/* ✅ Notes Viewer */}
             <div className="bg-white rounded-xl shadow-md p-6">
               <h2 className="text-2xl font-bold mb-4">Class Notes</h2>
 
-              {/* Upload */}
-              <div className="flex items-center gap-4 mb-6">
-                <input
-                  type="file"
-                  accept="application/pdf"
-                  onChange={(e) => setNoteFile(e.target.files?.[0] || null)}
-                  className="border rounded px-3 py-2"
-                />
-                <button
-                  onClick={handleUpload}
-                  disabled={!noteFile}
-                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-                >
-                  Upload PDF
-                </button>
-              </div>
-
-              {/* Notes list */}
               {notes.length > 0 ? (
                 <ul className="space-y-3">
                   {notes.map((note) => (
@@ -240,13 +179,13 @@ const LiveClass: React.FC = () => {
                         rel="noopener noreferrer"
                         className="text-blue-600 underline hover:text-blue-800"
                       >
-                        View/Download
+                        View / Download
                       </a>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <p className="text-gray-500">No notes uploaded yet.</p>
+                <p className="text-gray-500">Notes will be uploaded here by your instructor.</p>
               )}
             </div>
           </>
