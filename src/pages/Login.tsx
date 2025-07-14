@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import { supabase } from '../supabaseClient';
@@ -11,8 +11,35 @@ const Login: React.FC = () => {
     rememberMe: false,
   });
   const [error, setError] = useState('');
-  const [profile, setProfile] = useState<any>(null); // For user profile
+  const [profile, setProfile] = useState<any>(null);
 
+  /* ------------------------------------------------------------- *
+   * 1️⃣  Global auth‑state listener → sets is_active = true
+   * ------------------------------------------------------------- */
+  useEffect(() => {
+    // We subscribe once; the callback fires on every auth change
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        const { error: updateError } = await supabase
+          .from('users')
+          .update({ is_active: true })
+          .eq('id', session.user.id);
+
+        if (updateError) {
+          console.error('Failed to set is_active → TRUE:', updateError.message);
+        }
+      }
+    });
+
+    // Cleanup to avoid memory leaks
+    return () => subscription.unsubscribe();
+  }, []);
+
+  /* ------------------------------------------------------------- *
+   * 2️⃣  Local handlers
+   * ------------------------------------------------------------- */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
@@ -25,29 +52,18 @@ const Login: React.FC = () => {
     e.preventDefault();
     const { email, password } = formData;
 
-    const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { data: authData, error: signInError } =
+      await supabase.auth.signInWithPassword({ email, password });
 
     if (signInError) {
       setError(signInError.message);
       return;
     }
 
+    // 🔄  The auth listener will now set is_active for us.
+    //     We can still load the user profile here.
     const user = authData?.user;
     if (user) {
-      // Step 1: Update is_active to true in `users` table
-      const { error: updateError } = await supabase
-        .from('users')
-        .update({ is_active: true })
-        .eq('id', user.id);
-
-      if (updateError) {
-        console.error('Failed to update is_active status:', updateError.message);
-      }
-
-      // Step 2: Fetch profile (optional)
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
@@ -61,15 +77,16 @@ const Login: React.FC = () => {
         setProfile(profileData);
         console.log('User profile:', profileData);
       }
-
-      setError('');
-      alert('Logged in successfully!');
-      // navigate('/dashboard', { state: { profile } });
     }
+
+    setError('');
+    alert('Logged in successfully!');
+    // navigate('/dashboard', { state: { profile } });
   };
 
-
   const handleGoogleLogin = async () => {
+    // After the OAuth flow, Supabase restores the session,
+    // emits SIGNED_IN, and the listener updates is_active.
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -77,11 +94,12 @@ const Login: React.FC = () => {
       },
     });
 
-    if (error) {
-      setError(error.message);
-    }
+    if (error) setError(error.message);
   };
 
+  /* ------------------------------------------------------------- *
+   * 3️⃣  UI
+   * ------------------------------------------------------------- */
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
@@ -102,6 +120,7 @@ const Login: React.FC = () => {
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm -space-y-px">
+            {/* Email */}
             <div>
               <label htmlFor="email-address" className="sr-only">
                 Email address
@@ -124,6 +143,7 @@ const Login: React.FC = () => {
               </div>
             </div>
 
+            {/* Password */}
             <div>
               <label htmlFor="password" className="sr-only">
                 Password
@@ -157,8 +177,10 @@ const Login: React.FC = () => {
             </div>
           </div>
 
+          {/* Errors */}
           {error && <p className="text-sm text-red-500 text-center">{error}</p>}
 
+          {/* Remember me / Forgot password */}
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <input
@@ -175,12 +197,16 @@ const Login: React.FC = () => {
             </div>
 
             <div className="text-sm">
-              <Link to="/forgot-password" className="font-medium text-blue-600 hover:text-blue-500">
+              <Link
+                to="/forgot-password"
+                className="font-medium text-blue-600 hover:text-blue-500"
+              >
                 Forgot your password?
               </Link>
             </div>
           </div>
 
+          {/* Sign‑in button */}
           <div>
             <button
               type="submit"
@@ -190,18 +216,21 @@ const Login: React.FC = () => {
             </button>
           </div>
 
+          {/* OAuth buttons */}
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-300" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-gray-50 text-gray-500">Or continue with</span>
+                <span className="px-2 bg-gray-50 text-gray-500">
+                  Or continue with
+                </span>
               </div>
             </div>
 
             <div className="mt-6 grid grid-cols-2 gap-3">
-              {/* Google Button */}
+              {/* Google */}
               <button
                 type="button"
                 onClick={handleGoogleLogin}
@@ -221,7 +250,7 @@ const Login: React.FC = () => {
                 </svg>
               </button>
 
-              {/* GitHub Button (optional - can implement later) */}
+              {/* GitHub placeholder */}
               <button
                 type="button"
                 className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
