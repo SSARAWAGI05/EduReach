@@ -17,7 +17,7 @@ const Courses: React.FC = () => {
   const courses = [
       {
         id: 1,
-        title: "Coming soon. Stay tuned for updates!",
+        title: "Coming soon. Stay tuned!",
         instructor: "Rishika Sarawagi",
         image: "https://images.pexels.com/photos/3184306/pexels-photo-3184306.jpeg?auto=compress&cs=tinysrgb&w=600",
         price: "₹",

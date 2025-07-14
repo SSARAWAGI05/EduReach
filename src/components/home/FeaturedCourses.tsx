@@ -5,38 +5,17 @@ import { Clock, Star, Users } from 'lucide-react';
 const FeaturedCourses: React.FC = () => {
   const courses = [
     {
-      id: 1,
-      title: "Complete Web Development Bootcamp",
-      instructor: "Sarah Johnson",
-      image: "https://images.pexels.com/photos/11035380/pexels-photo-11035380.jpeg?auto=compress&cs=tinysrgb&w=600",
-      price: "$99",
-      rating: 4.9,
-      students: 12543,
-      duration: "40 hours",
-      category: "Web Development"
-    },
-    {
-      id: 2,
-      title: "Data Science and Machine Learning",
-      instructor: "Dr. Michael Chen",
-      image: "https://images.pexels.com/photos/8386434/pexels-photo-8386434.jpeg?auto=compress&cs=tinysrgb&w=600",
-      price: "$149",
-      rating: 4.8,
-      students: 8934,
-      duration: "60 hours",
-      category: "Data Science"
-    },
-    {
-      id: 3,
-      title: "Digital Marketing Masterclass",
-      instructor: "Emma Thompson",
-      image: "https://images.pexels.com/photos/265087/pexels-photo-265087.jpeg?auto=compress&cs=tinysrgb&w=600",
-      price: "$79",
-      rating: 4.7,
-      students: 15632,
-      duration: "25 hours",
-      category: "Marketing"
-    }
+        id: 1,
+        title: "Coming soon. Stay tuned!",
+        instructor: "Rishika Sarawagi",
+        image: "https://images.pexels.com/photos/3184306/pexels-photo-3184306.jpeg?auto=compress&cs=tinysrgb&w=600",
+        price: "₹",
+        rating: 0,
+        students: 0,
+        duration: "0 hours",
+        category: "Economics",
+        level: "Beginner"
+      }
   ];
 
   return (
