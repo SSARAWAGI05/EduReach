@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { Calendar, Clock, Users, Video } from 'lucide-react';
 
@@ -13,6 +13,7 @@ const LiveClass: React.FC = () => {
   });
   const [notes, setNotes] = useState<any[]>([]);
   const [selectedNoteUrl, setSelectedNoteUrl] = useState<string | null>(null);
+  const notesRef = useRef<HTMLDivElement | null>(null); // ⬅️ For scroll
 
   // ✅ Get user session
   useEffect(() => {
@@ -27,7 +28,7 @@ const LiveClass: React.FC = () => {
     getUser();
   }, []);
 
-  // ✅ Fetch next class for student
+  // ✅ Fetch next class
   useEffect(() => {
     if (!userEmail) return;
 
@@ -48,7 +49,7 @@ const LiveClass: React.FC = () => {
     fetchClass();
   }, [userEmail]);
 
-  // ✅ Timer countdown
+  // ✅ Countdown
   useEffect(() => {
     if (!nextClass) return;
 
@@ -74,7 +75,7 @@ const LiveClass: React.FC = () => {
     return () => clearInterval(timer);
   }, [nextClass]);
 
-  // ✅ Fetch all notes (no class_id filtering)
+  // ✅ Fetch notes
   useEffect(() => {
     const fetchNotes = async () => {
       const { data, error } = await supabase
@@ -87,6 +88,14 @@ const LiveClass: React.FC = () => {
 
     fetchNotes();
   }, []);
+
+  // ✅ Auto-scroll when closing preview
+  const handleClosePreview = () => {
+    setSelectedNoteUrl(null);
+    if (notesRef.current) {
+      notesRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -164,7 +173,11 @@ const LiveClass: React.FC = () => {
             </div>
 
             {/* ✅ Notes Section */}
-            <div className="bg-white rounded-xl shadow-md p-6 mt-10">
+            <div
+              className="bg-white rounded-xl shadow-md p-6 mt-10 scroll-mt-20"
+              ref={notesRef}
+              id="notes"
+            >
               <h2 className="text-2xl font-bold mb-4">Class Notes</h2>
 
               {notes.length > 0 ? (
@@ -196,10 +209,18 @@ const LiveClass: React.FC = () => {
               )}
             </div>
 
-            {/* ✅ PDF Preview Section */}
+            {/* ✅ PDF Preview Section with animation & close */}
             {selectedNoteUrl && (
-              <div className="mt-10">
-                <h3 className="text-xl font-semibold mb-2">Preview:</h3>
+              <div className="mt-10 animate-fade-in transition-opacity duration-500">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-xl font-semibold">Preview:</h3>
+                  <button
+                    onClick={handleClosePreview}
+                    className="text-sm text-red-600 underline hover:text-red-800"
+                  >
+                    Close Preview
+                  </button>
+                </div>
                 <div className="w-full h-[600px] border rounded-lg overflow-hidden">
                   <iframe
                     src={selectedNoteUrl}
@@ -213,13 +234,26 @@ const LiveClass: React.FC = () => {
           </>
         )}
 
-        {/* Not logged in */}
         {!userEmail && (
           <div className="text-center text-red-600 text-lg font-semibold mb-10">
             Please log in to see your upcoming classes.
           </div>
         )}
       </div>
+
+      {/* ✅ Simple fade-in animation via Tailwind */}
+      <style>
+        {`
+          .animate-fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+          }
+
+          @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+        `}
+      </style>
     </div>
   );
 };
