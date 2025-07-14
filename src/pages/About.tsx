@@ -4,41 +4,29 @@ import { Users, Target, Award, Globe } from 'lucide-react';
 const About: React.FC = () => {
   const teamMembers = [
     {
-      name: "Dr. Sarah Johnson",
+      name: "Rishika Sarawagi",
       role: "CEO & Founder",
-      image: "https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=300",
-      bio: "Former Stanford professor with 15+ years in education technology"
+      image: "https://i.postimg.cc/QdVgvj6M/6-DCBE6-DE-4-E97-4-A55-9590-E6-FC193-A52-FE.jpg",
+      bio: "Former Consultant at Mastercard with 7+ years of experience in the education industry"
     },
     {
-      name: "Michael Chen",
-      role: "CTO",
-      image: "https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=300",
-      bio: "Ex-Google engineer specializing in AI and machine learning"
-    },
-    {
-      name: "Emma Thompson",
-      role: "Head of Content",
-      image: "https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=300",
-      bio: "Award-winning educator and curriculum development expert"
-    },
-    {
-      name: "Alex Rivera",
-      role: "Head of Design",
-      image: "https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=300",
-      bio: "UI/UX designer with expertise in educational interfaces"
-    },
-    {
-      name: "David Kim",
-      role: "Head of Marketing",
-      image: "https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=300",
-      bio: "Growth marketing specialist with focus on ed-tech"
-    },
-    {
-      name: "Lisa Anderson",
-      role: "Head of Operations",
-      image: "https://images.pexels.com/photos/1181519/pexels-photo-1181519.jpeg?auto=compress&cs=tinysrgb&w=300",
-      bio: "Operations expert with MBA from Wharton"
-    }
+    name: "Shubam Sarawagi",
+    role: "Head of AI & Development",
+    image: "https://i.postimg.cc/3rgtZr65/IMG-3756.jpg",
+    bio: "Software Developer, Website Manager & AI/ML Engineer"
+  },
+  {
+    name: "Pooja Sarawagi",
+    role: "Mentor & Strategy Consultant",
+    image: "https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=300",
+    bio: "Passionate Motivator, Trusted Consultant & Strategic Guide"
+  },
+  {
+    name: "Praveen Kumar Sarawagi",
+    role: "Chief Financial Advisor",
+    image: "https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=300",
+    bio: "Finance Expert, Consultant & Advisor"
+  }
   ];
 
   const timeline = [
