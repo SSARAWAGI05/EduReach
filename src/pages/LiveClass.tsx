@@ -5,32 +5,36 @@ import { Calendar, Clock, Users, Video, Play } from 'lucide-react';
 const LiveClass: React.FC = () => {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [nextClass, setNextClass] = useState<any | null>(null);
-  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [timeLeft, setTimeLeft] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0
+  });
 
   // ✅ Get user session and extract email
   useEffect(() => {
     const getUser = async () => {
       const {
-        data: { session },
-        error
+        data: { session }
       } = await supabase.auth.getSession();
 
-      if (session?.user?.email) {
-        setUserEmail(session.user.email); // ✅ email is guaranteed to be string
+      const email = session?.user?.email;
+      if (email) {
+        setUserEmail(email);
       } else {
-        setUserEmail(null); // Optional fallback
+        setUserEmail(null);
       }
     };
 
     getUser();
   }, []);
 
-
-  // ✅ Fetch the earliest upcoming class for the student
+  // ✅ Fetch next class for student
   useEffect(() => {
     if (!userEmail) return;
 
-    const fetchStudentClass = async () => {
+    const fetchClass = async () => {
       const { data, error } = await supabase
         .from('live_classes')
         .select('*')
@@ -49,10 +53,10 @@ const LiveClass: React.FC = () => {
       }
     };
 
-    fetchStudentClass();
+    fetchClass();
   }, [userEmail]);
 
-  // ✅ Timer to countdown to class
+  // ✅ Timer countdown to class
   useEffect(() => {
     if (!nextClass) return;
 
@@ -68,6 +72,8 @@ const LiveClass: React.FC = () => {
           minutes: Math.floor((difference / (1000 * 60)) % 60),
           seconds: Math.floor((difference / 1000) % 60)
         });
+      } else {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
       }
     };
 
@@ -84,7 +90,7 @@ const LiveClass: React.FC = () => {
           <p className="text-xl text-gray-600">Join interactive sessions with expert instructors</p>
         </div>
 
-        {/* ✅ Show only if user is logged in and a class is found */}
+        {/* ✅ Only show if logged in and class exists */}
         {userEmail && nextClass && (
           <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 mb-12 text-white">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
@@ -104,37 +110,40 @@ const LiveClass: React.FC = () => {
                   </div>
                   <div className="flex items-center space-x-2">
                     <Users className="h-5 w-5" />
-                    <span>1 student (you)</span>
+                    <span>Only you enrolled</span>
                   </div>
                 </div>
 
-                {/* Countdown */}
+                {/* ✅ Countdown timer */}
                 <div className="bg-white bg-opacity-20 rounded-lg p-4 mb-6">
                   <p className="text-sm mb-2">Starts in:</p>
                   <div className="flex space-x-4">
                     {(['days', 'hours', 'minutes', 'seconds'] as const).map((key) => (
                       <div key={key} className="text-center">
                         <div className="text-2xl font-bold">{timeLeft[key]}</div>
-                        <div className="text-sm">{key.charAt(0).toUpperCase() + key.slice(1)}</div>
+                        <div className="text-sm capitalize">{key}</div>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                {/* Join button */}
-                {nextClass.link && (
-                  <a
-                    href={nextClass.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-block"
-                  >
-                    <button className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors flex items-center">
-                      <Video className="h-5 w-5 mr-2" />
-                      Join Class
-                    </button>
-                  </a>
-                )}
+                {/* ✅ Join button (only if <= 5 minutes left) */}
+                {nextClass.link &&
+                  timeLeft.days === 0 &&
+                  timeLeft.hours === 0 &&
+                  timeLeft.minutes <= 5 && (
+                    <a
+                      href={nextClass.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block"
+                    >
+                      <button className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors flex items-center">
+                        <Video className="h-5 w-5 mr-2" />
+                        Join Class
+                      </button>
+                    </a>
+                  )}
               </div>
 
               <div>
@@ -148,7 +157,7 @@ const LiveClass: React.FC = () => {
           </div>
         )}
 
-        {/* ✅ Not logged in */}
+        {/* ✅ User not logged in */}
         {!userEmail && (
           <div className="text-center text-red-600 text-lg font-semibold mb-10">
             Please log in to see your upcoming classes.
