@@ -10,23 +10,23 @@ const About: React.FC = () => {
       bio: "Former Consultant at Mastercard with 7+ years of experience in the education industry"
     },
     {
-    name: "Shubam Sarawagi",
-    role: "Head of AI & Development",
-    image: "https://i.postimg.cc/3rgtZr65/IMG-3756.jpg",
-    bio: "Software Developer, Website Manager & AI/ML Engineer"
-  },
-  {
-    name: "Pooja Sarawagi",
-    role: "Mentor & Strategy Consultant",
-    image: "https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=300",
-    bio: "Passionate Motivator, Trusted Consultant & Strategic Guide"
-  },
-  {
-    name: "Praveen Kumar Sarawagi",
-    role: "Chief Financial Advisor",
-    image: "https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=300",
-    bio: "Finance Expert, Consultant & Advisor"
-  }
+      name: "Shubam Sarawagi",
+      role: "Head of AI & Development",
+      image: "https://i.postimg.cc/3rgtZr65/IMG-3756.jpg",
+      bio: "Software Developer, Website Manager & AI/ML Engineer"
+    },
+    {
+      name: "Pooja Sarawagi",
+      role: "Mentor & Strategy Consultant",
+      image: "https://i.postimg.cc/C1t9K975/IMG-4850.jpg",
+      bio: "Passionate Motivator, Trusted Consultant & Strategic Guide"
+    },
+    {
+      name: "Praveen Kumar Sarawagi",
+      role: "Chief Financial Advisor",
+      image: "https://i.postimg.cc/BQCNYdFF/IMG-4851.jpg",
+      bio: "Finance Expert, Consultant & Advisor"
+    }
   ];
 
   const timeline = [
@@ -146,9 +146,9 @@ const About: React.FC = () => {
               Our diverse team of experts is passionate about education and technology
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {teamMembers.map((member, index) => (
-              <div key={index} className="bg-white rounded-xl shadow-md p-6 text-center hover:shadow-lg transition-shadow">
+              <div key={index} className="bg-white rounded-xl shadow-md p-6 text-center hover:shadow-lg transition-shadow h-full flex flex-col items-center justify-between">
                 <img
                   src={member.image}
                   alt={member.name}
