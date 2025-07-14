@@ -29,7 +29,6 @@ const Header: React.FC = () => {
     { name: 'Live Class', href: '/live-class' },
     { name: 'AI Hub', href: '/ai-hub' },
     { name: 'Blogs', href: '/blogs' },
-    { name: 'News', href: '/news' },
     { name: 'About Us', href: '/about' },
     { name: 'Contact', href: '/contact' },
   ];
