@@ -70,7 +70,7 @@ const Register: React.FC = () => {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: 'https://ofxinmglsqsbyzsiofcy.supabase.co', // ⚠️ Change to your production URL
+        redirectTo: 'https://learnwithrishika.vercel.app/', // ⚠️ Change to your production URL https://ofxinmglsqsbyzsiofcy.supabase.co
       },
     });
   };
