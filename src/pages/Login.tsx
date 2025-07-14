@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 
 const Login: React.FC = () => {
-  /* ------------------------------------------------------------------ *
-   * Local state
-   * ------------------------------------------------------------------ */
+  const navigate = useNavigate(); // ✅ NEW: for redirecting after login
+
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
@@ -16,9 +15,6 @@ const Login: React.FC = () => {
   const [error, setError] = useState('');
   const [profile, setProfile] = useState<any>(null);
 
-  /* ------------------------------------------------------------------ *
-   * Auth‑state listener
-   * ------------------------------------------------------------------ */
   useEffect(() => {
     const {
       data: { subscription },
@@ -28,7 +24,6 @@ const Login: React.FC = () => {
       const provider = session.user.app_metadata?.provider ?? 'password';
 
       if (provider === 'google') {
-        /* Google sign‑in → UPSERT (insert if missing, else update) */
         const { error: upsertError } = await supabase
           .from('users')
           .upsert(
@@ -41,7 +36,6 @@ const Login: React.FC = () => {
           );
         if (upsertError) console.error('Google upsert failed:', upsertError.message);
       } else {
-        /* Non‑Google sign‑in → UPDATE only (no insert) */
         const { error: updateError } = await supabase
           .from('users')
           .update({ is_active: true })
@@ -53,9 +47,6 @@ const Login: React.FC = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  /* ------------------------------------------------------------------ *
-   * Event handlers
-   * ------------------------------------------------------------------ */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
@@ -76,7 +67,6 @@ const Login: React.FC = () => {
       return;
     }
 
-    /* Listener handles is_active; we only fetch profile. */
     const user = authData?.user;
     if (user) {
       const { data: profileData, error: profileError } = await supabase
@@ -95,7 +85,8 @@ const Login: React.FC = () => {
 
     setError('');
     alert('Logged in successfully!');
-    // navigate('/dashboard', { state: { profile } });
+
+    navigate('/dashboard'); // ✅ RESTORED: navigate to dashboard after login
   };
 
   const handleGoogleLogin = async () => {
@@ -108,13 +99,9 @@ const Login: React.FC = () => {
     if (error) setError(error.message);
   };
 
-  /* ------------------------------------------------------------------ *
-   * UI
-   * ------------------------------------------------------------------ */
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
-        {/* Header */}
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Sign in to your account
@@ -127,11 +114,8 @@ const Login: React.FC = () => {
           </p>
         </div>
 
-        {/* Form */}
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {/* Email + Password */}
           <div className="rounded-md shadow-sm -space-y-px">
-            {/* Email */}
             <div>
               <label htmlFor="email-address" className="sr-only">
                 Email address
@@ -154,7 +138,6 @@ const Login: React.FC = () => {
               </div>
             </div>
 
-            {/* Password */}
             <div>
               <label htmlFor="password" className="sr-only">
                 Password
@@ -188,10 +171,8 @@ const Login: React.FC = () => {
             </div>
           </div>
 
-          {/* Error message */}
           {error && <p className="text-sm text-red-500 text-center">{error}</p>}
 
-          {/* Remember me / Forgot */}
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <input
@@ -217,7 +198,6 @@ const Login: React.FC = () => {
             </div>
           </div>
 
-          {/* Sign in button */}
           <div>
             <button
               type="submit"
@@ -227,7 +207,6 @@ const Login: React.FC = () => {
             </button>
           </div>
 
-          {/* OAuth block */}
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
@@ -239,7 +218,6 @@ const Login: React.FC = () => {
             </div>
 
             <div className="mt-6 grid grid-cols-2 gap-3">
-              {/* Google button */}
               <button
                 type="button"
                 onClick={handleGoogleLogin}
@@ -259,7 +237,6 @@ const Login: React.FC = () => {
                 </svg>
               </button>
 
-              {/* GitHub placeholder */}
               <button
                 type="button"
                 className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"

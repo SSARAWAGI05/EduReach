@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
 import { supabase } from '../supabaseClient'; // 👈 Ensure this is set up correctly
+import { useNavigate } from 'react-router-dom';
 
 const Register: React.FC = () => {
+  const navigate = useNavigate(); // ✅ NEW: for redirecting after register
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -57,6 +59,7 @@ const Register: React.FC = () => {
       alert('Account created! Please check your email for confirmation.');
     }
   }
+  navigate('/login');
 };
 
 

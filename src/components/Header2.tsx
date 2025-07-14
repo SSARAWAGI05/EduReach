@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, GraduationCap, User, LogOut } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-import { supabase } from '../supabaseClient';
+import { Menu, X, GraduationCap, User } from 'lucide-react';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
-  const { user } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -17,11 +14,6 @@ const Header: React.FC = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setIsMenuOpen(false); // close mobile menu if open
-  };
 
   const navigation = [
     { name: 'Home', href: '/' },
@@ -36,8 +28,10 @@ const Header: React.FC = () => {
 
   return (
     <header
-      className={`fixed z-50 top-14 left-6 right-6 rounded-full shadow-xl transition-all duration-300 ${
-        isScrolled ? 'bg-gray-100 bg-opacity-90 backdrop-blur-md' : 'bg-white'
+      className={`fixed z-50 transition-all duration-300 ${
+        isScrolled
+          ? 'top-0 left-0 right-0 bg-gray-100 shadow-md rounded-none'
+          : 'top-6 left-6 right-6 bg-white shadow-xl rounded-full'
       }`}
     >
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -68,40 +62,26 @@ const Header: React.FC = () => {
             </div>
           </div>
 
-          {/* Auth Buttons (Desktop) */}
+          {/* Auth Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            {!user ? (
-              <>
-                <Link
-                  to="/login"
-                  className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  Login
-                </Link>
-                <Link
-                  to="/register"
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
-                >
-                  Register
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link
-                  to="/dashboard"
-                  className="text-gray-700 hover:text-gray-900 p-2 rounded-md"
-                >
-                  <User className="h-5 w-5" />
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center"
-                >
-                  <LogOut className="h-4 w-4 mr-1" />
-                  Logout
-                </button>
-              </>
-            )}
+            <Link
+              to="/login"
+              className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+            >
+              Login
+            </Link>
+            <Link
+              to="/register"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+            >
+              Register
+            </Link>
+            <Link
+              to="/dashboard"
+              className="text-gray-700 hover:text-gray-900 p-2 rounded-md"
+            >
+              <User className="h-5 w-5" />
+            </Link>
           </div>
 
           {/* Mobile menu button */}
@@ -133,42 +113,23 @@ const Header: React.FC = () => {
                   {item.name}
                 </Link>
               ))}
-
               <div className="pt-4 pb-3 border-t border-gray-200">
-                {!user ? (
-                  <div className="flex items-center px-3 space-x-3">
-                    <Link
-                      to="/login"
-                      className="text-gray-700 hover:text-gray-900 text-base font-medium"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      Login
-                    </Link>
-                    <Link
-                      to="/register"
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-base font-medium"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      Register
-                    </Link>
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-between px-3">
-                    <Link
-                      to="/dashboard"
-                      className="text-gray-700 hover:text-gray-900 text-base font-medium"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      Dashboard
-                    </Link>
-                    <button
-                      onClick={handleLogout}
-                      className="text-red-600 hover:text-red-800 text-base font-medium"
-                    >
-                      Logout
-                    </button>
-                  </div>
-                )}
+                <div className="flex items-center px-3 space-x-3">
+                  <Link
+                    to="/login"
+                    className="text-gray-700 hover:text-gray-900 text-base font-medium"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/register"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-base font-medium"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Register
+                  </Link>
+                </div>
               </div>
             </div>
           </div>

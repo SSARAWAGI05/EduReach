@@ -15,6 +15,7 @@ import FAQs from './pages/FAQs';
 import Contact from './pages/Contact';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ProtectedRoute from './components/ProtectedRoute'; // ✅ NEW import
 
 function App() {
   return (
@@ -29,7 +30,17 @@ function App() {
           <Route path="/news" element={<News />} />
           <Route path="/about" element={<About />} />
           <Route path="/testimonials" element={<Testimonials />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          
+          {/* ✅ PROTECTED ROUTE */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+
           <Route path="/ask-mentor" element={<AskMentor />} />
           <Route path="/faqs" element={<FAQs />} />
           <Route path="/contact" element={<Contact />} />
