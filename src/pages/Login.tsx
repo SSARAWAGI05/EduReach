@@ -4,6 +4,9 @@ import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 
 const Login: React.FC = () => {
+  /* ------------------------------------------------------------------ *
+   * Local state
+   * ------------------------------------------------------------------ */
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
@@ -13,33 +16,46 @@ const Login: React.FC = () => {
   const [error, setError] = useState('');
   const [profile, setProfile] = useState<any>(null);
 
-  /* ------------------------------------------------------------- *
-   * 1️⃣  Global auth‑state listener → sets is_active = true
-   * ------------------------------------------------------------- */
+  /* ------------------------------------------------------------------ *
+   * Auth‑state listener
+   * ------------------------------------------------------------------ */
   useEffect(() => {
-    // We subscribe once; the callback fires on every auth change
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session?.user) {
+      if (event !== 'SIGNED_IN' || !session?.user) return;
+
+      const provider = session.user.app_metadata?.provider ?? 'password';
+
+      if (provider === 'google') {
+        /* Google sign‑in → UPSERT (insert if missing, else update) */
+        const { error: upsertError } = await supabase
+          .from('users')
+          .upsert(
+            {
+              id: session.user.id,
+              email: session.user.email,
+              is_active: true,
+            },
+            { onConflict: 'id' }
+          );
+        if (upsertError) console.error('Google upsert failed:', upsertError.message);
+      } else {
+        /* Non‑Google sign‑in → UPDATE only (no insert) */
         const { error: updateError } = await supabase
           .from('users')
           .update({ is_active: true })
           .eq('id', session.user.id);
-
-        if (updateError) {
-          console.error('Failed to set is_active → TRUE:', updateError.message);
-        }
+        if (updateError) console.error('Update is_active failed:', updateError.message);
       }
     });
 
-    // Cleanup to avoid memory leaks
     return () => subscription.unsubscribe();
   }, []);
 
-  /* ------------------------------------------------------------- *
-   * 2️⃣  Local handlers
-   * ------------------------------------------------------------- */
+  /* ------------------------------------------------------------------ *
+   * Event handlers
+   * ------------------------------------------------------------------ */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
@@ -60,8 +76,7 @@ const Login: React.FC = () => {
       return;
     }
 
-    // 🔄  The auth listener will now set is_active for us.
-    //     We can still load the user profile here.
+    /* Listener handles is_active; we only fetch profile. */
     const user = authData?.user;
     if (user) {
       const { data: profileData, error: profileError } = await supabase
@@ -75,7 +90,6 @@ const Login: React.FC = () => {
         console.error(profileError.message);
       } else {
         setProfile(profileData);
-        console.log('User profile:', profileData);
       }
     }
 
@@ -85,40 +99,37 @@ const Login: React.FC = () => {
   };
 
   const handleGoogleLogin = async () => {
-    // After the OAuth flow, Supabase restores the session,
-    // emits SIGNED_IN, and the listener updates is_active.
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: 'https://ofxinmglsqsbyzsiofcy.supabase.co/auth/v1/callback',
       },
     });
-
     if (error) setError(error.message);
   };
 
-  /* ------------------------------------------------------------- *
-   * 3️⃣  UI
-   * ------------------------------------------------------------- */
+  /* ------------------------------------------------------------------ *
+   * UI
+   * ------------------------------------------------------------------ */
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
+        {/* Header */}
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Sign in to your account
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             Or{' '}
-            <Link
-              to="/register"
-              className="font-medium text-blue-600 hover:text-blue-500"
-            >
+            <Link to="/register" className="font-medium text-blue-600 hover:text-blue-500">
               create a new account
             </Link>
           </p>
         </div>
 
+        {/* Form */}
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          {/* Email + Password */}
           <div className="rounded-md shadow-sm -space-y-px">
             {/* Email */}
             <div>
@@ -177,10 +188,10 @@ const Login: React.FC = () => {
             </div>
           </div>
 
-          {/* Errors */}
+          {/* Error message */}
           {error && <p className="text-sm text-red-500 text-center">{error}</p>}
 
-          {/* Remember me / Forgot password */}
+          {/* Remember me / Forgot */}
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <input
@@ -206,7 +217,7 @@ const Login: React.FC = () => {
             </div>
           </div>
 
-          {/* Sign‑in button */}
+          {/* Sign in button */}
           <div>
             <button
               type="submit"
@@ -216,21 +227,19 @@ const Login: React.FC = () => {
             </button>
           </div>
 
-          {/* OAuth buttons */}
+          {/* OAuth block */}
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-300" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-gray-50 text-gray-500">
-                  Or continue with
-                </span>
+                <span className="px-2 bg-gray-50 text-gray-500">Or continue with</span>
               </div>
             </div>
 
             <div className="mt-6 grid grid-cols-2 gap-3">
-              {/* Google */}
+              {/* Google button */}
               <button
                 type="button"
                 onClick={handleGoogleLogin}
