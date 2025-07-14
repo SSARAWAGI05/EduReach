@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
-import { supabase } from '../supabaseClient'; // 👈 Ensure this is set up correctly
-import { useNavigate } from 'react-router-dom';
+import { supabase } from '../supabaseClient';
 
 const Register: React.FC = () => {
-  const navigate = useNavigate(); // ✅ NEW: for redirecting after register
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -14,68 +13,64 @@ const Register: React.FC = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    agreeToTerms: false
+    agreeToTerms: false,
   });
-
-  const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-
-  if (formData.password !== formData.confirmPassword) {
-    alert("Passwords do not match.");
-    return;
-  }
-
-  // Step 1: Sign up the user
-  const { data: authData, error: signUpError } = await supabase.auth.signUp({
-    email: formData.email,
-    password: formData.password,
-  });
-
-  if (signUpError) {
-    alert(signUpError.message);
-    return;
-  }
-
-  // Step 2: Insert user details into your `users` table
-  const { user } = authData;
-  if (user) {
-    const { error: insertError } = await supabase
-      .from('users')
-      .insert([
-        {
-          id: user.id, // Link to auth.users
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          email: formData.email,
-          is_active: true, // optional default
-          created_at: new Date().toISOString(), // optional if you want to prefill
-        }
-      ]);
-
-    if (insertError) {
-      alert('Account created, but failed to save user info.');
-      console.error(insertError);
-    } else {
-      alert('Account created! Please check your email for confirmation.');
-    }
-  }
-  navigate('/login');
-};
-
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : value,
     }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (formData.password !== formData.confirmPassword) {
+      alert('Passwords do not match.');
+      return;
+    }
+
+    const { data, error } = await supabase.auth.signUp({
+      email: formData.email,
+      password: formData.password,
+    });
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    const userId = data.user?.id;
+
+    if (userId) {
+      const { error: insertError } = await supabase.from('users').insert([
+        {
+          id: userId,
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          mail_id: formData.email,
+        },
+      ]);
+
+      if (insertError) {
+        alert('Signup succeeded but saving user data failed: ' + insertError.message);
+        return;
+      }
+
+      alert('Account created! Please check your email for confirmation.');
+      navigate('/login');
+    } else {
+      alert('Signup succeeded but user ID is missing. Please try logging in.');
+    }
   };
 
   const handleGoogleSignIn = async () => {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: 'https://ofxinmglsqsbyzsiofcy.supabase.co/auth/v1/callback', // ✅ adjust if needed
+        redirectTo: 'http://localhost:3000/oauth-callback', // ⚠️ Change to your production URL
       },
     });
   };
@@ -187,13 +182,8 @@ const Register: React.FC = () => {
               required
             />
             I agree to the{' '}
-            <a href="#" className="text-blue-600 hover:underline">
-              Terms of Service
-            </a>{' '}
-            and{' '}
-            <a href="#" className="text-blue-600 hover:underline">
-              Privacy Policy
-            </a>
+            <a href="#" className="text-blue-600 hover:underline">Terms of Service</a> and{' '}
+            <a href="#" className="text-blue-600 hover:underline">Privacy Policy</a>
           </label>
 
           <button
@@ -225,7 +215,6 @@ const Register: React.FC = () => {
       </div>
     </div>
   );
-
 };
 
 export default Register;

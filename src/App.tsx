@@ -15,7 +15,8 @@ import FAQs from './pages/FAQs';
 import Contact from './pages/Contact';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import ProtectedRoute from './components/ProtectedRoute'; // ✅ NEW import
+import OAuthCallback from './pages/OAuthCallback'; // ✅ NEW import
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
@@ -30,7 +31,7 @@ function App() {
           <Route path="/news" element={<News />} />
           <Route path="/about" element={<About />} />
           <Route path="/testimonials" element={<Testimonials />} />
-          
+
           {/* ✅ PROTECTED ROUTE */}
           <Route
             path="/dashboard"
@@ -46,6 +47,9 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          
+          {/* ✅ Add this to handle Google OAuth redirects */}
+          <Route path="/oauth-callback" element={<OAuthCallback />} />
         </Routes>
       </Layout>
     </Router>
